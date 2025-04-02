@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fit with Vinay - Personalized Diet & Nutrition Planner</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #121212, #1e1e1e);
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            color: white;
+        }
+        .container {
+            background: rgba(40, 40, 60, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7);
+            color: white;
+            animation: fadeIn 1s ease-in;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+        }
+        input, select {
+            background: #333;
+            color: white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+        }
+        button {
+            background: linear-gradient(45deg, #ff4081, #ff9800);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            border-radius: 50px;
+        }
+        button:hover {
+            background: linear-gradient(45deg, #e91e63, #ff5722);
+        }
+        .output {
+            margin-top: 20px;
+            padding: 15px;
+            background: #252525;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            text-align: left;
+            white-space: pre-line;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Fit with Vinay - Personalized Diet & Nutrition Planner</h1>
+    <div class="container" id="loginContainer">
+        <h2>Login / Sign Up</h2>
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button onclick="loginUser()">Login</button>
+    </div>
+    
+    <div class="container" id="dietPlannerContainer" style="display: none;">
+        <h2>Enter Your Details</h2>
+        <input type="number" id="age" placeholder="Age" required>
+        <input type="number" id="weight" placeholder="Weight (kg)" required>
+        <input type="number" id="height" placeholder="Height (cm)" required>
+        <select id="activity">
+            <option value="low">Low Activity</option>
+            <option value="moderate">Moderate Activity</option>
+            <option value="high">High Activity</option>
+        </select>
+        <select id="diet">
+            <option value="veg">Vegetarian</option>
+            <option value="non-veg">Non-Vegetarian</option>
+            <option value="vegan">Vegan</option>
+        </select>
+        <button onclick="generateWeeklyDietPlan()">Get Weekly Diet Plan</button>
+        <canvas id="nutritionChart"></canvas>
+        <div id="output" class="output"></div>
+    </div>
+    
+    <div class="footer">
+        <p>Contact: Vinay Kumar Sunkari | Email: vinaypatelsunkari31@gmail.com | Phone: 9391494373</p>
+    </div>
+    
+    <script>
+    function loginUser() {
+        let username = document.getElementById("username").value;
+        let password = document.getElementById("password").value;
+        
+        if (username && password) {
+            localStorage.setItem("username", username);
+            alert("Login successful! Redirecting to diet planner...");
+            document.getElementById("loginContainer").style.display = "none";
+            document.getElementById("dietPlannerContainer").style.display = "block";
+        } else {
+            alert("Please enter valid login credentials.");
+        }
+    }
+
+    function generateWeeklyDietPlan() {
+        let mealPlan = "\n🥗 Weekly Meal Plan:\n";
+        let days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+        let meals = {
+            Breakfast: ["Oatmeal & fruits", "Egg toast", "Smoothie bowl", "Pancakes", "Granola & yogurt", "Scrambled eggs", "Fruit salad"],
+            Lunch: ["Grilled chicken & rice", "Veggie wrap", "Lentil soup", "Pasta & veggies", "Quinoa salad", "Fish & greens", "Tofu stir-fry"],
+            Snacks: ["Almonds & walnuts", "Greek yogurt", "Hummus & carrots", "Apple & peanut butter", "Protein bar", "Banana & nuts", "Smoothie"],
+            Dinner: ["Salmon & veggies", "Lentil curry", "Vegetable stir-fry", "Quinoa bowl", "Chickpea salad", "Grilled fish", "Soup & bread"]
+        };
+        
+        for (let i = 0; i < 7; i++) {
+            mealPlan += `🔹 ${days[i]}:\n   🍽 Breakfast: ${meals.Breakfast[i]}\n   🍛 Lunch: ${meals.Lunch[i]}\n   🥗 Snacks: ${meals.Snacks[i]}\n   🍲 Dinner: ${meals.Dinner[i]}\n\n`;
+        }
+        document.getElementById("output").innerText = mealPlan;
+        generateNutritionChart();
+    }
+
+    function generateNutritionChart() {
+        const ctx = document.getElementById('nutritionChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Protein', 'Carbs', 'Fats'],
+                datasets: [{
+                    label: 'Nutrition Breakdown (g)',
+                    data: [50, 150, 30],
+                    backgroundColor: ['#ff4081', '#ff9800', '#4caf50']
+                }]
+            }
+        });
+    }
+    </script>
+</body>
+</html>
